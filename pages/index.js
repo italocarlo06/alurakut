@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainGrid } from '../src/components/MainGrid';
 import { Box } from '../src/components/Box';
 import { 
@@ -26,9 +26,30 @@ function ProfileSideBar({ githubUser }){
   );
 }
 
+function ProfileRelationsBox({ title, items } ){
+  return (
+    <ProfileRelationsBoxWrapper >
+    <h2 className="smallTitle">{title} ({items.length})</h2>
+    <ul>
+      {items.slice(0, 6).map( item => {
+        return (
+          <li key={item.login}>
+            <a href={`/users/${items.login}`} >
+              <img src={`https://github.com/${items}.png`}></img>
+              <span>{item.login}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </ProfileRelationsBoxWrapper>
+  );
+}
+
 export default function Home() {
   const githubUser = 'omariosouto';
   const [ comunidades, setComunidades ] = useState([]);
+  const [ seguidores, setSeguidores ] = useState([]);
   const pessoasFavoritas = [
     'juunegreiros', 
     'omariosouto', 
@@ -37,6 +58,17 @@ export default function Home() {
     'marcobrunodev',
     'felipefialho'
   ]
+
+  //const seguidores = [] ;
+
+  useEffect(function(){
+    fetch('https://api.github.com/users/peas/followers')
+    .then( function(respostaDoServidor){
+      return respostaDoServidor.json()
+    })
+    .then( dados => setSeguidores(dados));
+  },[]);
+
   return (
     <>
       <AlurakutMenu />
@@ -90,8 +122,8 @@ export default function Home() {
             </form>
           </Box>
         </div>
-
-        <div className="profileRelationsArea" style={{gridArea: 'profileRelationsArea'}}>
+          <div className="profileRelationsArea"  style={{gridArea: 'profileRelationsArea'}}> 
+          <ProfileRelationsBox title="Seguidores" items={seguidores} />
           <ProfileRelationsBoxWrapper >
             <h2 className="smallTitle">Pessoas da Comunidade ({pessoasFavoritas.length})</h2>
             <ul>
